@@ -27,7 +27,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -49,12 +49,51 @@ namespace Photon.Pun.Demo.PunBasics
         private GameObject player2;
 
         // Start Method
-      
+        private void Start()
+        {
+            if (!PhotonNetwork.IsConnected)
+            {
+                // PhotonNetwork.LoadLevel("Luncher");
+                SceneManager.LoadScene("Luncher");
+                return;
+            }
+           
+            if(PlayerManager.LocalPlayerInstance == null)
+            if(PhotonNetwork.IsMasterClient)
+            {
+                
+                player1 = PhotonNetwork.Instantiate("Car", player1SpawnPosition.transform.position, player1SpawnPosition.transform.rotation, 0);
+                ball = PhotonNetwork.Instantiate("Ball", ballSpawnTransform.transform.position, ballSpawnTransform.transform.rotation, 0);
+                    ball.name = "Ball";
+            }
+            else  
+            {
+                player2 = PhotonNetwork.Instantiate("Car", player2SpawnPosition.transform.position, player2SpawnPosition.transform.rotation, 0);
+              
+            }
+        }
         // Update Method
-
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
+        }
         // Photon Methods
-
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            base.OnPlayerLeftRoom(otherPlayer);
+            Debug.Log(" On player left room : " + otherPlayer.NickName);
+            if (PhotonNetwork.IsMasterClient)
+            {
+                PhotonNetwork.LoadLevel("Luncher");
+            }
+        }
         //Helper Methods
-
+        public void QuitRoom()
+        {
+            Application.Quit();
+        }
     }
 }
